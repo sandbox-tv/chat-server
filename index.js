@@ -15,7 +15,9 @@ io.use(function(socket, next) {
     var json = JSON.parse(body);
     console.log('json', json);
 
-    if (!json.error && json.id) {
+    if (json.error) {
+      next(json.error);
+    } else {
       socket.username = json.username;
       next();
     }
