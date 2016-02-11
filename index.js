@@ -5,7 +5,7 @@ var request = require('request');
 
 io.use(function(socket, next) {
   console.log(socket.request.headers.cookie);
-  
+
   var options = {
     url: 'http://localhost:4567/user',
     headers: {
@@ -21,7 +21,7 @@ io.use(function(socket, next) {
       socket.username = json.username;
       next();
     } else {
-      next(json);
+      next({error: 'unauthorized', msg: json});
     }
   });
 });
