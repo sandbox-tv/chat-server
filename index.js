@@ -4,18 +4,18 @@ var io = require('socket.io')(http);
 var request = require('request');
 
 io.use(function(socket, next) {
-  console.log(socket.request.headers.cookie);
+  console.log(socket.handshake.query.sessiontoken);
 
   var options = {
     url: 'http://localhost:4567/user',
     headers: {
-      Cookie: socket.request.headers.cookie
+      Authorization: 'Bearer ' + socket.handshake.query.sessiontoken
     }
   };
 
   request(options, function(err, response, body) {
     console.log('body', body);
-    var json = JSON.parse(body);
+    var json = body ? JSON.parse(body) : {};
 
     if (response.statusCode === 200 && json.username) {
       socket.username = json.username;
