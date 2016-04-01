@@ -7,7 +7,7 @@ io.use(function(socket, next) {
   console.log(socket.handshake.query.sessiontoken);
 
   var options = {
-    url: 'http://172.17.0.2:4567/user',
+    url: 'http://api:4567/user',
     headers: {
       Authorization: 'Bearer ' + socket.handshake.query.sessiontoken
     }
