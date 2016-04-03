@@ -3,22 +3,23 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var request = require('request');
 
+if (!process.env.API_URL) {
+    throw new Error('API_URL is not defined');
+}
+
 io.use(function(socket, next) {
   console.log(socket.handshake.query.sessiontoken);
 
   var options = {
-    url: 'http://api:4567/user',
-    headers: {
-      Authorization: 'Bearer ' + socket.handshake.query.sessiontoken
-    }
+    url: process.env.API_URL + '/user?sessiontoken=' + socket.handshake.query.sessiontoken
   };
 
   request(options, function(err, response, body) {
     console.log('body', body);
     var json = body ? JSON.parse(body) : {};
 
-    if (response.statusCode === 200 && json.username) {
-      socket.username = json.username;
+    if (response.statusCode === 200 && json.user.username) {
+      socket.username = json.user.username;
       next();
     } else {
       next({error: 'unauthorized', msg: json});
