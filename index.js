@@ -14,17 +14,35 @@ io.use(function(socket, next) {
     url: process.env.API_URL + '/user?sessiontoken=' + socket.handshake.query.sessiontoken
   };
 
-  request(options, function(err, response, body) {
-    console.log('body', body);
-    var json = body ? JSON.parse(body) : {};
+  connectToApi(5);
 
-    if (response.statusCode === 200 && json.user.username) {
-      socket.username = json.user.username;
-      next();
-    } else {
-      next({error: 'unauthorized', msg: json});
-    }
-  });
+  function connectToApi(maxTries) {
+    request(options, function(err, response, body) {
+      if (err) {
+
+        console.log(err);
+
+        if (maxTries == 0) {
+          throw new Error('Could not connect to API!');
+        }
+
+        setTimeout(function() { connectToApi(maxTries - 1) }, 3000);
+
+        return;
+
+      } else {
+        console.log("body", body);
+        var json = body ? JSON.parse(body) : {};
+
+        if (response.statusCode === 200 && json.user && json.user.username) {
+          socket.username = json.user.username;
+          next();
+        } else {
+          next({error: 'unauthorized', msg: json});
+        }
+      }
+    });
+  }
 });
 
 io.on('connection', function(socket) {
